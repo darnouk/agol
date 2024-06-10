@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>GEOG 576 Lab 2</title>
+  <title>GEOG 574 Lab 1</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="A simple map app" />
@@ -14,19 +14,38 @@
       "esri/config", 
       "esri/Map", 
       "esri/views/MapView",
+      "esri/widgets/BasemapGallery", // for the basemap gallery
+      "esri/Basemap", // Include the Basemap module
+      "esri/layers/OpenStreetMapLayer", // Include OpenStreetMapLayer module
+      "esri/layers/ImageryLayer", // Include ImageryLayer module
+      "esri/layers/MapImageLayer", // Include MapImageLayer module
+      "esri/widgets/Locate", // For the locate widget/button
+      "esri/widgets/Search", // for the search widget/bar
       "esri/Graphic", // adding this and the below module to give map ability to work with graphics
-      "esri/layers/GraphicsLayer"
-    ], function(esriConfig, Map, MapView, Graphic, GraphicsLayer) {
+      "esri/layers/GraphicsLayer",
+      "esri/geometry/Polyline", // Include Polyline module
+      "esri/geometry/Polygon" // Include Polygon module
+    ], function(esriConfig, Map, MapView, BasemapGallery, Basemap, OpenStreetMapLayer, ImageryLayer, MapImageLayer, Locate, Search, Graphic, GraphicsLayer, Polyline, Polygon) {
       esriConfig.apiKey = "AAPK45a1a79d80324d6b84cfcefc5d245da5oW9bwMPWeWTNN2UnfIZ1nUICUQeXC3I1d69a9PhL0bqhQYehrob33UfG1Rj4q3fq";
       
       const map = new Map({
         basemap: "streets-navigation-vector" // Default basemap
       });
 
+      // Define additional basemaps
+      const imageryBasemap = Basemap.fromId("satellite");
+      const nationalGeographicBasemap = Basemap.fromId("national-geographic");
+      const osmBasemap = Basemap.fromId("osm");
+      const streetsDarkBasemap = Basemap.fromId("streets-night-vector");
+      const navigationBasemap = Basemap.fromId("streets-navigation-vector");
+      const imageryHybridBasemap = Basemap.fromId("hybrid");
+      const streetsBasemap = Basemap.fromId("streets");
+      const topographicBasemap = Basemap.fromId("topo");
+
       const view = new MapView({
         container: "viewDiv",
         map: map,
-        center: [-95.3698, 29.7604], // centered on houston tx
+        center: [-95.3698, 29.7604], // centered on Houston, TX
         zoom: 10 // encompasses about the entire Houston metro area in view
       });
 
@@ -73,6 +92,85 @@
       });
 
       graphicsLayer.add(pointGraphic);
+
+      // Add a polyline
+      const polyline = new Polyline({
+        paths: [
+          [-95.3698, 29.7604],
+          [-95.358421, 29.749907],
+          [-95.342345, 29.735729]
+        ]
+      });
+
+      const polylineSymbol = {
+        type: "simple-line",
+        color: "green",
+        width: 2
+      };
+
+      const polylineGraphic = new Graphic({
+        geometry: polyline,
+        symbol: polylineSymbol
+      });
+
+      graphicsLayer.add(polylineGraphic);
+
+      // Add a polygon
+      const polygon = new Polygon({
+        rings: [
+          [-95.359303, 29.751243],
+          [-95.354998, 29.748451],
+          [-95.351763, 29.751052],
+          [-95.357727, 29.753458],
+          [-95.359303, 29.751243]
+        ]
+      });
+
+      const polygonSymbol = {
+        type: "simple-fill",
+        color: [51, 51, 204, 0.9], // RGB with transparency
+        outline: {
+          color: "white",
+          width: 1
+        }
+      };
+
+      const polygonGraphic = new Graphic({
+        geometry: polygon,
+        symbol: polygonSymbol
+      });
+
+      graphicsLayer.add(polygonGraphic);
+
+      const locateBtn = new Locate({
+        view: view
+      });
+
+      // Add the locate widget to the top left corner of the view
+      view.ui.add(locateBtn, {
+        position: "top-left",
+        index: 1 // Ensures it is below the search widget
+      });
+
+      // the search widget, different from the button
+      const searchWidget = new Search({
+        view: view
+      });
+
+      // Add the search widget to the top left corner of the view
+      view.ui.add(searchWidget, {
+        position: "top-left",
+        index: 0 // Ensures it is above the locate button
+      });
+
+      let basemapGallery = new BasemapGallery({
+        view: view,
+        source: [navigationBasemap, nationalGeographicBasemap, streetsDarkBasemap, osmBasemap, imageryBasemap, imageryHybridBasemap, streetsBasemap, topographicBasemap]
+      });
+
+      view.ui.add(basemapGallery, {
+        position: "top-right"
+      });
     });
   </script>
   <!-- CSS to make a full screen map. -->
