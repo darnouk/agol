@@ -44,7 +44,7 @@
         latitude: 29.71704694432924
       };
 
-      // defining popup properties
+      // defining popup properties for the point
       const popupTemplate = {
         title: "{Name}",
         content: "{Description}"
@@ -138,10 +138,18 @@
         }
       };
 
-      // Add the feature layer with the custom renderer
+      // Define a popup template for the zoo feature layer
+      const popupZoo = {
+        title: "{Zoo}",
+        content: "<b>Website:</b> <a href='{Website}' target='_blank'>{Website}</a><br><b>Red Pandas:</b> {Red_Pandas}"
+      };
+
+      // Add the feature layer with the custom renderer and popup template
       const usazooLayer = new FeatureLayer({
         url: "https://services9.arcgis.com/OtvI1SexACVJlil5/arcgis/rest/services/Zoo_List/FeatureServer",
-        renderer: zooRenderer
+        renderer: zooRenderer,
+        outFields: ["Name", "Website", "Red_Pandas"],
+        popupTemplate: popupZoo
       }); // adding the feature layer to the map
       map.add(usazooLayer);
     });
