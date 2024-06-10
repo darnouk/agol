@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>GEOG 574 Lab 1</title>
+  <title>GEOG 576 Lab 2</title>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="A simple map app" />
@@ -11,42 +11,26 @@
   <!--  These are the modules I need for a full screen map app. -->
   <script>
     require([
-      "esri/config", 
-      "esri/Map", 
-      "esri/views/MapView",
-      "esri/widgets/BasemapGallery", // for the basemap gallery
-      "esri/Basemap", // Include the Basemap module
-      "esri/layers/OpenStreetMapLayer", // Include OpenStreetMapLayer module
-      "esri/layers/ImageryLayer", // Include ImageryLayer module
-      "esri/layers/MapImageLayer", // Include MapImageLayer module
-      "esri/widgets/Locate", // For the locate widget/button
-      "esri/widgets/Search", // for the search widget/bar
-      "esri/Graphic", // adding this and the below module to give map ability to work with graphics
-      "esri/layers/GraphicsLayer",
-      "esri/geometry/Polyline", // Include Polyline module
-      "esri/geometry/Polygon" // Include Polygon module
-    ], function(esriConfig, Map, MapView, BasemapGallery, Basemap, OpenStreetMapLayer, ImageryLayer, MapImageLayer, Locate, Search, Graphic, GraphicsLayer, Polyline, Polygon) {
+      "esri/config", // adding this to give map ability to work with configurations
+      "esri/Map", // adding this to give map ability to work with maps
+      "esri/views/MapView", // adding this to give map ability to work with views
+      "esri/Graphic", // adding this to give map ability to work with graphics
+      "esri/layers/GraphicsLayer", // adding this to give map ability to work with graphics
+      "esri/geometry/Polyline", // adding this to give map ability to work with polylines
+      "esri/geometry/Polygon", // adding this to give map ability to work with polygons
+      "esri/layers/FeatureLayer" // adding this to give map ability to work with feature layers
+    ], function(esriConfig, Map, MapView, Graphic, GraphicsLayer, Polyline, Polygon, FeatureLayer) {
       esriConfig.apiKey = "AAPK45a1a79d80324d6b84cfcefc5d245da5oW9bwMPWeWTNN2UnfIZ1nUICUQeXC3I1d69a9PhL0bqhQYehrob33UfG1Rj4q3fq";
       
       const map = new Map({
         basemap: "streets-navigation-vector" // Default basemap
       });
 
-      // Define additional basemaps
-      const imageryBasemap = Basemap.fromId("satellite");
-      const nationalGeographicBasemap = Basemap.fromId("national-geographic");
-      const osmBasemap = Basemap.fromId("osm");
-      const streetsDarkBasemap = Basemap.fromId("streets-night-vector");
-      const navigationBasemap = Basemap.fromId("streets-navigation-vector");
-      const imageryHybridBasemap = Basemap.fromId("hybrid");
-      const streetsBasemap = Basemap.fromId("streets");
-      const topographicBasemap = Basemap.fromId("topo");
-
       const view = new MapView({
         container: "viewDiv",
         map: map,
         center: [-95.3698, 29.7604], // centered on Houston, TX
-        zoom: 10 // encompasses about the entire Houston metro area in view
+        zoom: 4 // encompasses about the entire Houston metro area in view
       });
 
       // adding the constructor for the GraphicsLayer
@@ -90,15 +74,14 @@
         attributes: attributes,
         popupTemplate: popupTemplate
       });
-
       graphicsLayer.add(pointGraphic);
 
-      // Add a polyline
+      // Add a polyline pointing at the Houston Zoo
       const polyline = new Polyline({
         paths: [
-          [-95.3698, 29.7604],
-          [-95.358421, 29.749907],
-          [-95.342345, 29.735729]
+          [-95.4000, 29.7200],  // Starting point of the polyline
+          [-95.3950, 29.7180],  // Midpoint of the polyline
+          [-95.39057845640411, 29.71704694432924] // Ending point of the polyline (Houston Zoo)
         ]
       });
 
@@ -112,26 +95,25 @@
         geometry: polyline,
         symbol: polylineSymbol
       });
-
       graphicsLayer.add(polylineGraphic);
 
-      // Add a polygon
+      // Add a polygon surrounding the Houston Zoo
       const polygon = new Polygon({
         rings: [
-          [-95.359303, 29.751243],
-          [-95.354998, 29.748451],
-          [-95.351763, 29.751052],
-          [-95.357727, 29.753458],
-          [-95.359303, 29.751243]
+          [-95.3910, 29.7180], // Point near the northwest
+          [-95.3910, 29.7160], // Point near the southwest
+          [-95.3900, 29.7160], // Point near the southeast
+          [-95.3900, 29.7180], // Point near the northeast
+          [-95.3910, 29.7180]  // Closing the ring by repeating the first point
         ]
       });
 
       const polygonSymbol = {
         type: "simple-fill",
-        color: [51, 51, 204, 0.9], // RGB with transparency
+        color: [51, 51, 204, 0.5], // blueish color with 50% transparency
         outline: {
           color: "white",
-          width: 1
+          width: 1 // outline is white with a width of 1 point
         }
       };
 
@@ -139,38 +121,29 @@
         geometry: polygon,
         symbol: polygonSymbol
       });
-
       graphicsLayer.add(polygonGraphic);
 
-      const locateBtn = new Locate({
-        view: view
-      });
+      // Define a renderer with the same symbol as the manually created point
+      const zooRenderer = {
+        type: "simple", // autocasts as new SimpleRenderer()
+        symbol: {
+          type: "simple-marker",
+          style: "diamond",
+          color: "dodgerblue",
+          size: "10px",
+          outline: {
+            color: [0, 0, 0],
+            width: 1
+          }
+        }
+      };
 
-      // Add the locate widget to the top left corner of the view
-      view.ui.add(locateBtn, {
-        position: "top-left",
-        index: 1 // Ensures it is below the search widget
-      });
-
-      // the search widget, different from the button
-      const searchWidget = new Search({
-        view: view
-      });
-
-      // Add the search widget to the top left corner of the view
-      view.ui.add(searchWidget, {
-        position: "top-left",
-        index: 0 // Ensures it is above the locate button
-      });
-
-      let basemapGallery = new BasemapGallery({
-        view: view,
-        source: [navigationBasemap, nationalGeographicBasemap, streetsDarkBasemap, osmBasemap, imageryBasemap, imageryHybridBasemap, streetsBasemap, topographicBasemap]
-      });
-
-      view.ui.add(basemapGallery, {
-        position: "top-right"
-      });
+      // Add the feature layer with the custom renderer
+      const usazooLayer = new FeatureLayer({
+        url: "https://services9.arcgis.com/OtvI1SexACVJlil5/arcgis/rest/services/Zoo_List/FeatureServer",
+        renderer: zooRenderer
+      }); // adding the feature layer to the map
+      map.add(usazooLayer);
     });
   </script>
   <!-- CSS to make a full screen map. -->
