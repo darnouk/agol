@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>GEOG 576 Lab 2</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="A simple map app" />
+  <!-- Calls for the ArcGIS API's CSS file and JS library. -->
+  <link rel="stylesheet" href="https://js.arcgis.com/4.25/esri/themes/dark/main.css">
+  <script src="https://js.arcgis.com/4.25/"></script>
+  <!--  These are the modules I need for a full screen map app. -->
+  <script>
+    require([
+      "esri/config", 
+      "esri/Map", 
+      "esri/views/MapView",
+      "esri/Graphic", // adding this and the below module to give map ability to work with graphics
+      "esri/layers/GraphicsLayer"
+    ], function(esriConfig, Map, MapView, Graphic, GraphicsLayer) {
+      esriConfig.apiKey = "AAPK45a1a79d80324d6b84cfcefc5d245da5oW9bwMPWeWTNN2UnfIZ1nUICUQeXC3I1d69a9PhL0bqhQYehrob33UfG1Rj4q3fq";
+      
+      const map = new Map({
+        basemap: "streets-navigation-vector" // Default basemap
+      });
+
+      const view = new MapView({
+        container: "viewDiv",
+        map: map,
+        center: [-95.3698, 29.7604], // centered on houston tx
+        zoom: 10 // encompasses about the entire Houston metro area in view
+      });
+
+      // adding the constructor for the GraphicsLayer
+      const graphicsLayer = new GraphicsLayer();
+      map.add(graphicsLayer);
+
+      // adding a point at a specified location (the Houston Zoo)
+      const point = {
+        type: "point",
+        longitude: -95.39057845640411,
+        latitude: 29.71704694432924
+      };
+
+      // defining popup properties
+      const popupTemplate = {
+        title: "{Name}",
+        content: "{Description}"
+      };
+
+      const attributes = {
+        Name: "Houston Zoo",
+        Description: "The location of the Houston Zoo, a great way to spend a field trip or a Saturday with the kids."
+      };
+
+      // symbol for the point
+      let pointSymbol = {
+        type: "simple-marker",
+        style: "diamond",
+        color: "dodgerblue", // i did not know this was a color until looking at the reference page
+        size: "10px",  // pixels
+        outline: {
+          color: [0, 0, 0],
+          width: 1 // points
+        }
+      };
+
+      // create the graphic and add it to the layer
+      const pointGraphic = new Graphic({
+        geometry: point,
+        symbol: pointSymbol,
+        attributes: attributes,
+        popupTemplate: popupTemplate
+      });
+
+      graphicsLayer.add(pointGraphic);
+    });
+  </script>
+  <!-- CSS to make a full screen map. -->
+  <style> 
+    html, body, #viewDiv {
+      padding: 0; 
+      margin: 0; 
+      height: 100%; 
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <!-- The div to display the map. -->
+  <div id="viewDiv"></div> 
+</body>
+</html>
