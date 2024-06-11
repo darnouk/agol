@@ -23,8 +23,8 @@
       esriConfig.apiKey = "AAPK45a1a79d80324d6b84cfcefc5d245da5oW9bwMPWeWTNN2UnfIZ1nUICUQeXC3I1d69a9PhL0bqhQYehrob33UfG1Rj4q3fq";
       
       const map = new Map({
-        basemap: "streets-navigation-vector" // Default basemap
-      });
+      basemap: "streets-night-vector" // Dark street basemap
+          });
 
       const view = new MapView({
         container: "viewDiv",
@@ -152,6 +152,43 @@
         popupTemplate: popupZoo
       }); // adding the feature layer to the map
       map.add(usazooLayer);
+
+      // Define constants for the new feature layer
+      const newFeatureLayerURL = "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/US_Airports_DArnouk/FeatureServer"; // my rest url
+
+      // Define a renderer for the new feature layer with a custom airplane icon
+      const newRenderer = {
+        type: "simple",
+        symbol: {
+          type: "picture-marker",
+          url: "https://raw.githubusercontent.com/darnouk/agol/main/airport.png", // custom airplane icon
+          width: "8px",
+          height: "8px" // i made it small because there are a lot of airports and any larger would just cover the entire country
+        }
+      };
+
+      // Define a popup template for the new feature layer
+      const newPopupTemplate = {
+        title: "{Fac_Name}",
+        content: "{City}"
+      };
+
+      // Create and add the new feature layer to the map
+      const newFeatureLayer = new FeatureLayer({
+        url: newFeatureLayerURL,
+        renderer: newRenderer,
+        outFields: ["Fac_Name", "City"], // Specify the fields to be used
+        popupTemplate: newPopupTemplate
+      });
+
+     /* // Adding a listener to check if the layer is loaded
+      newFeatureLayer.when(() => {
+        console.log("New feature layer loaded successfully");
+      }, (error) => {
+        console.error("Error loading the new feature layer: ", error);
+      }); */
+
+      map.add(newFeatureLayer);
     });
   </script>
   <!-- CSS to make a full screen map. -->
