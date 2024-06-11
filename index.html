@@ -23,8 +23,8 @@
       esriConfig.apiKey = "AAPK45a1a79d80324d6b84cfcefc5d245da5oW9bwMPWeWTNN2UnfIZ1nUICUQeXC3I1d69a9PhL0bqhQYehrob33UfG1Rj4q3fq";
       
       const map = new Map({
-      basemap: "streets-night-vector" // Dark street basemap
-          });
+        basemap: "streets-night-vector" // Dark street basemap
+      });
 
       const view = new MapView({
         container: "viewDiv",
@@ -153,11 +153,8 @@
       }); // adding the feature layer to the map
       map.add(usazooLayer);
 
-      // Define constants for the new feature layer
-      const newFeatureLayerURL = "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/US_Airports_DArnouk/FeatureServer"; // my rest url
-
       // Define a renderer for the new feature layer with a custom airplane icon
-      const newRenderer = {
+      const airportRenderer = {
         type: "simple",
         symbol: {
           type: "picture-marker",
@@ -167,26 +164,24 @@
         }
       };
 
-      // Define a popup template for the new feature layer
-      const newPopupTemplate = {
-        title: "{Fac_Name}",
-        content: "{City}"
-      };
-
       // Create and add the new feature layer to the map
       const newFeatureLayer = new FeatureLayer({
-        url: newFeatureLayerURL,
-        renderer: newRenderer,
+        url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/US_Airports_DArnouk/FeatureServer",
+        renderer: airportRenderer,
         outFields: ["Fac_Name", "City"], // Specify the fields to be used
-        popupTemplate: newPopupTemplate
+        popupTemplate: {
+          title: "{Fac_Name}",
+          content: "{City}"
+        },
+        definitionExpression: "Fac_Type = 'AIRPORT'" // adding sql to filter for airports
       });
 
-     /* // Adding a listener to check if the layer is loaded
+      // Adding a listener to check if the layer is loaded
       newFeatureLayer.when(() => {
         console.log("New feature layer loaded successfully");
       }, (error) => {
         console.error("Error loading the new feature layer: ", error);
-      }); */
+      });
 
       map.add(newFeatureLayer);
     });
