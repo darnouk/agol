@@ -159,13 +159,13 @@
         symbol: {
           type: "picture-marker",
           url: "https://raw.githubusercontent.com/darnouk/agol/main/airport.png", // custom airplane icon
-          width: "20px",
-          height: "20x" // i made it small because there are a lot of airports and any larger would just cover the entire country
+          width: "25px",
+          height: "25px" // i made it small because there are a lot of airports and any larger would just cover the entire country
         }
       };
 
       // Create and add the new feature layer to the map
-      const newFeatureLayer = new FeatureLayer({
+      const airportFeatureLayer = new FeatureLayer({
         url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/US_Airports_DArnouk/FeatureServer",
         renderer: airportRenderer,
         outFields: ["Fac_Name", "City"], // Specify the fields to be used
@@ -176,14 +176,32 @@
         definitionExpression: "Fac_Type = 'AIRPORT'" // adding sql to filter for airports
       });
 
-      // Adding a listener to check if the layer is loaded
-      newFeatureLayer.when(() => {
-        console.log("New feature layer loaded successfully");
-      }, (error) => {
-        console.error("Error loading the new feature layer: ", error);
+      map.add(airportFeatureLayer);
+
+      // Define a renderer for the heliport feature layer with a custom heliport icon
+      const heliportRenderer = {
+        type: "simple",
+        symbol: {
+          type: "picture-marker",
+          url: "https://raw.githubusercontent.com/darnouk/agol/main/image(6).png", // custom heliport icon
+          width: "17px",
+          height: "17px" // i made it small because there are a lot of heliports and any larger would just cover the entire country
+        }
+      };
+
+      // Create and add the new feature layer to the map
+      const heliportFeatureLayer = new FeatureLayer({
+        url: "https://services.arcgis.com/HRPe58bUyBqyyiCt/arcgis/rest/services/US_Airports_DArnouk/FeatureServer",
+        renderer: heliportRenderer,
+        outFields: ["Fac_Name", "City"], // Specify the fields to be used
+        popupTemplate: {
+          title: "{Fac_Name}",
+          content: "{City}"
+        },
+        definitionExpression: "Fac_Type = 'HELIPORT'" // adding sql to filter for heliports
       });
 
-      map.add(newFeatureLayer);
+      map.add(heliportFeatureLayer);
     });
   </script>
   <!-- CSS to make a full screen map. -->
